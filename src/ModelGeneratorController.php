@@ -5,6 +5,7 @@ namespace AtelliTech\Yii2\Utils;
 use Exception;
 use Yii;
 use yii\console\Controller;
+use yii\db\ColumnSchema;
 use yii\helpers\Console;
 use yii\helpers\Inflector;
 
@@ -29,12 +30,17 @@ class ModelGeneratorController extends Controller
     /**
      * @var string $template default: @app/views/template/model.php
      */
-    public $template = '@vendor/atellitech/utils-yii2/src/templates/model.php';
+    public $template = '@vendor/atellitech/utils-yii2/src/templates/model.php.tmpl';
 
     /**
      * @var string $db database component id default: db
      */
     public $db = 'db';
+
+    /**
+     * @var string $oldDb original database component id
+     */
+    public $oldDb;
 
     /**
      * declare options
@@ -68,7 +74,7 @@ class ModelGeneratorController extends Controller
      *
      * @param string $tableName
      * @param int $override {0: false, 1: true} default: 0
-     * @return void
+     * @return void|int
      */
     public function actionGenerate(string $tableName, int $override = 0)
     {
@@ -166,7 +172,8 @@ class ModelGeneratorController extends Controller
     /**
      * gernerate all table name's models
      *
-     * @param int {0: false, 1: true} default: 1
+     * @param int $override {0: false, 1: true} default: 1
+     * @return void
      */
     public function actionAll(int $override = 1)
     {
@@ -187,8 +194,7 @@ class ModelGeneratorController extends Controller
      * generator table migration
      *
      * @param string $tableName
-     * @param string $db default: oldDb
-     * @return string
+     * @return void
      */
     public function actionMigration(string $tableName)
     {
@@ -261,7 +267,7 @@ class ModelGeneratorController extends Controller
                     $comment = $column->comment;
 
                     if (isset($matched[1])) {
-                        if ($matches[1] == 'at')
+                        if ($matched[1] == 'at')
                             $comment = 'unixtime';
                         else
                             $comment = 'ref: users.id';
@@ -330,8 +336,8 @@ class ModelGeneratorController extends Controller
     /**
      * extract columns into properties of OAS
      *
-     * @param array $columns
-     * @return array [schemas, requires]
+     * @param ColumnSchema[] $columns
+     * @return array<int, array<array<string, mixed>>|string[]>
      */
     protected function createSchemaByColumns(array $columns): array
     {
