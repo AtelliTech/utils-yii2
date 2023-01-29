@@ -1,22 +1,25 @@
-<?php
+<?= "<?php\n" ?>
 
-namespace v1\controllers;
+namespace <?= $name ?>\controllers;
 
-use v1\components\ActiveApiController;
+use Exception;
+use <?= $name ?>\components\ActiveApiController;
+use yii\data\ArrayDataProvider;
 use yii\data\ActiveDataProvider;
+use yii\web\HttpException;
 
 /**
  * @OA\Tag(
- *     name="{className}",
- *     description="Everything about your {className}",
+ *     name="<?= $className ?>",
+ *     description="Everything about your <?= $className ?>",
  * )
  *
  * @OA\Get(
- *     path="{apiPath}",
- *     summary="List all {className}",
- *     description="List all {className}",
- *     operationId="list{className}",
- *     tags={"{className}"},
+ *     path="<?= $apiPath ?>",
+ *     summary="List",
+ *     description="List all <?= $className ?>",
+ *     operationId="list<?= $className ?>",
+ *     tags={"<?= $className ?>"},
  *     @OA\Parameter(
  *         name="page",
  *         in="query",
@@ -45,25 +48,28 @@ use yii\data\ActiveDataProvider;
  *     @OA\Response(
  *         response=200,
  *         description="Successful operation",
- *         @OA\JsonContent(
- *             type="array",
- *             @OA\Items(ref="#/components/schemas/{className}")
+ *         @OA\MediaType(
+ *             mediaType="application/json",
+ *             @OA\Schema(
+ *              @OA\Property(property="_data", type="array", @OA\Items(ref="#/components/schemas/<?= $className ?>")),
+ *              @OA\Property(property="_meta", type="object", ref="#/components/schemas/Pagination")
+ *             )
  *         )
  *     )
  * )
  *
  * @OA\Get(
- *     path="{apiPath}/{id}",
- *     summary="Get {className} by particular id",
- *     description="Get {className} by particular id",
- *     operationId="get{className}",
- *     tags={"{className}"},
+ *     path="<?= $apiPath ?>/{id}",
+ *     summary="Get",
+ *     description="Get <?= $className ?> by particular id",
+ *     operationId="get<?= $className ?>",
+ *     tags={"<?= $className ?>"},
  *     @OA\Parameter(
  *         name="id",
  *         in="path",
- *         description="{className} id",
+ *         description="<?= $className ?> id",
  *         required=true,
- *         @OA\Schema(ref="#/components/schemas/{className}/properties/id")
+ *         @OA\Schema(ref="#/components/schemas/<?= $className ?>/properties/id")
  *     ),
  *     @OA\Parameter(
  *         name="fields",
@@ -78,75 +84,75 @@ use yii\data\ActiveDataProvider;
  *     @OA\Response(
  *         response=200,
  *         description="Successful operation",
- *         @OA\JsonContent(type="object", ref="#/components/schemas/{className}")
+ *         @OA\JsonContent(type="object", ref="#/components/schemas/<?= $className ?>")
  *     )
  * )
  *
  * @OA\Post(
- *     path="{apiPath}",
- *     summary="Create a record of {className}",
- *     description="Create a record of {className}",
- *     operationId="create{className}",
- *     tags={"{className}"},
+ *     path="<?= $apiPath ?>",
+ *     summary="Create",
+ *     description="Create a record of <?= $className ?>",
+ *     operationId="create<?= $className ?>",
+ *     tags={"<?= $className ?>"},
  *     @OA\RequestBody(
- *         description="{className} object that needs to be added",
+ *         description="<?= $className ?> object that needs to be added",
  *         required=true,
  *         @OA\MediaType(
  *             mediaType="application/json",
  *             @OA\Schema(
-{annotations}
+<?= $annotations . "\n" ?>
  *             )
  *         ),
  *     ),
  *     @OA\Response(
  *         response=200,
  *         description="Successful operation",
- *         @OA\JsonContent(type="object", ref="#/components/schemas/{className}")
+ *         @OA\JsonContent(type="object", ref="#/components/schemas/<?= $className ?>")
  *     )
  * )
  *
  * @OA\Patch(
- *     path="{apiPath}/{id}",
- *     summary="Update a record of {className}",
- *     description="Update a record of {className}",
- *     operationId="update{className}",
- *     tags={"{className}"},
+ *     path="<?= $apiPath ?>/{id}",
+ *     summary="Update",
+ *     description="Update a record of <?= $className ?>",
+ *     operationId="update<?= $className ?>",
+ *     tags={"<?= $className ?>"},
  *     @OA\Parameter(
  *         name="id",
  *         in="path",
- *         description="{className} id",
+ *         description="<?= $className ?> id",
  *         required=true,
- *         @OA\Schema(ref="#/components/schemas/{className}/properties/id")
+ *         @OA\Schema(ref="#/components/schemas/<?= $className ?>/properties/id")
  *     ),
  *     @OA\RequestBody(
- *         description="{className} object that needs to be updated",
+ *         description="<?= $className ?> object that needs to be updated",
  *         required=true,
  *         @OA\MediaType(
  *             mediaType="application/json",
  *             @OA\Schema(
-{annotations}
+<?= $annotations . "\n" ?>
  *             )
  *         ),
  *     ),
  *     @OA\Response(
  *         response=200,
  *         description="Successful operation",
- *         @OA\JsonContent(type="object", ref="#/components/schemas/{className}")
+ *         @OA\JsonContent(type="object", ref="#/components/schemas/<?= $className ?>")
  *     )
  * )
  *
  * @OA\Delete(
- *     path="{apiPath}/{id}",
- *     summary="Delete a record of {className}",
- *     description="Delete a record of {className}",
- *     operationId="delete{className}",
- *     tags={"{className}"},
+ *     path="<?= $apiPath ?>/{id}",
+ *     summary="Delete",
+ *     description="Delete a record of <?= $className ?>",
+ *     operationId="delete<?= $className ?>",
+ *     tags={"<?= $className ?>"},
  *     @OA\Parameter(
  *         name="id",
  *         in="path",
- *         description="{className} id",
+ *         description="<?= $className ?> id",
  *         required=true,
- *         @OA\Schema(ref="#/components/schemas/{className}/properties/id")
+ *         @OA\Schema(ref="#/components/schemas/<?= $className ?>/properties/id")
  *     ),
  *     @OA\Response(
  *         response=200,
@@ -156,12 +162,12 @@ use yii\data\ActiveDataProvider;
  *
  * @version 1.0.0
  */
-class {className}Controller extends ActiveApiController
+class <?= $className ?>Controller extends ActiveApiController
 {
     /**
      * @var string $modelClass
      */
-    public $modelClass = 'app\models\{className}';
+    public $modelClass = 'app\models\<?= $className ?>';
 
     /**
      * {@inherit}
@@ -177,7 +183,7 @@ class {className}Controller extends ActiveApiController
         ];
 
         $actions['index']['pagination'] = [
-            'class' => 'v1\components\Pagination'
+            'class' => '<?= $name ?>\components\Pagination'
         ];
 
         return $actions;
@@ -185,13 +191,13 @@ class {className}Controller extends ActiveApiController
 
     /**
      * @OA\Post(
-     *     path="{apiPath}/search",
-     *     summary="Search {className} by particular params",
-     *     description="Search {className}",
-     *     operationId="search{className}",
-     *     tags={"{className}"},
+     *     path="<?= $apiPath ?>/search",
+     *     summary="Search",
+     *     description="Search <?= $className ?> by particular params",
+     *     operationId="search<?= $className ?>",
+     *     tags={"<?= $className ?>"},
      *     @OA\RequestBody(
-     *         description="search {className}",
+     *         description="search <?= $className ?>",
      *         required=false,
      *         @OA\MediaType(
      *             mediaType="application/json",
@@ -207,32 +213,35 @@ class {className}Controller extends ActiveApiController
      *     @OA\Response(
      *         response=200,
      *         description="Successful operation",
-     *         @OA\JsonContent(
-     *             type="array",
-     *             @OA\Items(ref="#/components/schemas/{className}")
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(
+     *              @OA\Property(property="_data", type="array", @OA\Items(ref="#/components/schemas/<?= $className ?>")),
+     *              @OA\Property(property="_meta", type="object", ref="#/components/schemas/Pagination")
+     *             )
      *         )
      *     )
      * )
      *
-     * Search {className}
+     * Search <?= $className . "\n" ?>
      */
     public function actionSearch()
     {
         try {
             $params = $this->getRequestParams();
+            $model = new xxxSearchModel;
+            $model->load($params, '');
 
-            // prepare query
-            $query = call_user_func([$this->modelClass, 'find']);
-
-            // check params
-            if (!empty($typeIds) && is_array($typeIds)) {
-                // $query->andWhere(['type_id'=>$typeIds]);
+            if (!$model->validate()) {
+                $errors = $model->getErrorSummary(false);
+                $message = implode("\n", $errors);
+                throw new HttpException(400, $message);
             }
 
             return new ActiveDataProvider([
-                'query' => $query,
+                'query' => $model->buildQuery($this->modelClass),
                 'pagination' => [
-                    'class' => 'v1\components\Pagination',
+                    'class' => '<?= $name ?>\components\Pagination',
                     'params' => $params
                 ],
                 'sort' => [
