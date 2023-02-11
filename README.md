@@ -83,3 +83,21 @@ $ /path/to/yii genapi/generate {tableName} --option=value
 #### Options
 - name
 Name of module
+
+## Error Trait
+This trait could attach to each class and provides store error message or detail messages
+
+### Usage
+```php=
+class Abc
+{
+    // attach trait
+    use AtelliTech\Yii2\Utils\ErrorTrait;
+}
+
+$abc = new Abc;
+$abc->getErrorCode(); // get error code
+```
+
+### Methods & Properties
+@see [https://github.com/AtelliTech/utils-yii2/tree/main/docs](https://github.com/AtelliTech/utils-yii2/tree/main/docs)
