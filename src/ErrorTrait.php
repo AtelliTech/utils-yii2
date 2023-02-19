@@ -66,7 +66,7 @@ trait ErrorTrait
      *
      * @return int
      */
-    public function getErrorCode(int $code): int
+    public function getErrorCode(): int
     {
         return $this->errorValues['code'];
     }
@@ -76,7 +76,7 @@ trait ErrorTrait
      *
      * @return string
      */
-    public function getErrorMessage(int $message): string
+    public function getErrorMessage(): string
     {
         return $this->errorValues['message'];
     }
@@ -86,7 +86,7 @@ trait ErrorTrait
      *
      * @return array<int, mixed>
      */
-    public function getErrorDetails(array $details): array
+    public function getErrorDetails(): array
     {
         return $this->errorValues['details'];
     }
