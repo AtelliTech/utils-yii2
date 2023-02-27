@@ -44,7 +44,7 @@ class OpenApiSpecController extends \yii\web\Controller
      *
      * @param string $format default: yaml
      */
-    public function actionIndex(string $format = null): void
+    public function actionIndex(string $format = null): string
     {
         $cache = $this->module->get($this->cache);
         $cacheKey = 'cache.apidoc.' . $format;
