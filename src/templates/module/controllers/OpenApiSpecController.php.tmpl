@@ -9,7 +9,7 @@ use yii\web\HttpException;
 
 /**
  * @OA\OpenApi(
- *     security={{"Bearer": {}}},
+ *     security={{"BearerAuth": {}}},
  *     @OA\Server(
  *         url="https://api.xxx.com",
  *         description="[Dev] APIs server"
@@ -25,15 +25,20 @@ use yii\web\HttpException;
  * )
  *
  * @OA\SecurityScheme(
- *     type="apiKey",
- *     name="Authorization",
+ *     type="http",
+ *     scheme="bearer",
  *     in="header",
- *     description="Bearer {Access Token}",
- *     securityScheme="Bearer"
+ *     description="Authentication(Based on User Token): Bearer {Access Token}",
+ *     securityScheme="BearerAuth"
  * )
  */
 class OpenApiSpecController extends \yii\web\Controller
 {
+    /**
+     * @var string $cache component id of cache
+     */
+    private $cache = 'cache';
+
     /**
      * display swagger yaml
      *
@@ -41,12 +46,13 @@ class OpenApiSpecController extends \yii\web\Controller
      */
     public function actionIndex(string $format = null): void
     {
-        $cache = $this->module->get('cache');
+        $cache = $this->module->get($this->cache);
         $cacheKey = 'cache.apidoc.' . $format;
-        $modulePath = Yii::getAlias('<?= $nameAlias ?>');
-        $modelPath = Yii::getAlias('@app/models');
-        $openapi = \OpenApi\Generator::scan([$modulePath, $modelPath]);
-        $contents = $cache->get($cacheKey);
+        $openapi = \OpenApi\Generator::scan([
+                        Yii::getAlias('<?= $nameAlias ?>'),
+                        Yii::getAlias('@app/models')
+                    ]);
+        $contents = YII_DEBUG ? false : $cache->get($cacheKey);
         if ($format == 'json') {
             if (empty($contents))
                 $contents = $openapi->toJson();
@@ -68,8 +74,6 @@ class OpenApiSpecController extends \yii\web\Controller
         // set cache
         $cache->set($cacheKey, $contents, 120);
 
-        // response
-        $this->response->content = $contents;
-        $this->end();
+        return $contents;
     }
 }

@@ -229,17 +229,16 @@ class <?= $className ?>Controller extends ActiveApiController
     {
         try {
             $params = $this->getRequestParams();
-            $model = new xxxSearchModel;
-            $model->load($params, '');
-
-            if (!$model->validate()) {
-                $errors = $model->getErrorSummary(false);
+            $filter = new XxxxxFilter;
+            $filter->load($params, '');
+            if (!$filter->validate()) {
+                $errors = $filter->getErrorSummary(false);
                 $message = implode("\n", $errors);
                 throw new HttpException(400, $message);
             }
 
             return new ActiveDataProvider([
-                'query' => $model->buildQuery($this->modelClass),
+                'query' => $filter->apply(),
                 'pagination' => [
                     'class' => '<?= $name ?>\components\Pagination',
                     'params' => $params

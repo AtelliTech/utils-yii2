@@ -26,7 +26,7 @@ class ActiveApiController extends ActiveController
     /**
      * @var string $user Component id of yii\web\User
      */
-    protected $user;
+    protected $user = 'user';
 
     /**
      * @var array<string, string> $serializer
@@ -93,9 +93,9 @@ class ActiveApiController extends ActiveController
      */
     protected function getRequestParams(): array
     {
-        $requestParams = Yii::$app->getRequest()->getBodyParams();
+        $requestParams = $this->module->get('request')->getBodyParams();
         if (empty($requestParams)) {
-            $requestParams = Yii::$app->getRequest()->getQueryParams();
+            $requestParams = $this->module->get('request')->getQueryParams();
         }
 
         return $requestParams;
