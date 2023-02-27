@@ -37,6 +37,11 @@ class ApiGeneratorController extends Controller
     public $db = 'db';
 
     /**
+     * @var string $defaultAction
+     */
+    public $defaultAction = 'generate';
+
+    /**
      * declare options
      *
      * @param string $actionID

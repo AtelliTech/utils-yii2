@@ -43,6 +43,11 @@ class ModelGeneratorController extends Controller
     public $oldDb;
 
     /**
+     * @var string $defaultAction
+     */
+    public $defaultAction = 'generate';
+
+    /**
      * declare options
      *
      * @param string $actionID

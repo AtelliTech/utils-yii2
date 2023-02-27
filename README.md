@@ -29,7 +29,7 @@ This generator is used to create model class by particular table name.
 
 #### Usage
 ```
-$ /path/to/yii genmodel/generate {tableName} --option=value...
+$ /path/to/yii genmodel {tableName} --option=value...
 ```
 
 #### Options
@@ -77,7 +77,7 @@ This genertor is used to create an API controller file into specific module name
 
 #### Usage
 ```
-$ /path/to/yii genapi/generate {tableName} --option=value
+$ /path/to/yii genapi {tableName} --option=value
 ```
 
 #### Options

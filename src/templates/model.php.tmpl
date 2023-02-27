@@ -34,6 +34,8 @@ class <?= $className ?> extends ActiveRecord
 
     /**
      * Use timestamp to store time of login, update and create
+     *
+     * @return array<int, mixed>
      */
     public function behaviors()
     {
@@ -45,13 +47,15 @@ class <?= $className ?> extends ActiveRecord
             ],
 <?php endif ?>
 <?php if (isset($attributes['created_at']) && isset($attributes['updated_at'])): ?>
-            \yii\behaviors\TimestampBehavior::className()
+            TimestampBehavior::className()
 <?php endif; ?>
         ];
     }
 
     /**
      * rules
+     *
+     * @return array<int, mixed>
      */
     public function rules()
     {
@@ -62,9 +66,31 @@ class <?= $className ?> extends ActiveRecord
 
     /**
      * return extra fields
+     *
+     * @return string[]
      */
     public function extraFields()
     {
 <?= $extraFields . "\n" ?>
+    }
+
+    /**
+     * declare relation for 1 to many
+     *
+     * @return ActiveQuery[]|ActiveQuery
+     */
+    public function getXXXXXXs(): array|ActiveQuery
+    {
+        return $this->hasMany(XXXXXX::class, ['id'=>'id']);
+    }
+
+    /**
+     * declare relation for 1 to 1
+     *
+     * @return ActiveQuery|array<string, mixed>|null
+     */
+    public function getXXXXXX(): ActiveQuery|array|null
+    {
+        return $this->hasOne(XXXXXX::class, ['id'=>'id']);
     }
 }
