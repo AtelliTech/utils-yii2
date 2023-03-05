@@ -57,7 +57,7 @@ This genertor is used to create related files of API module by name that will cr
 
 #### Usage
 ```
-$ /path/to/yii genapi/generate-module {moduleName}
+$ /path/to/yii genapi/generate-module --name={moduleName}
 ```
 
 ## API Generator

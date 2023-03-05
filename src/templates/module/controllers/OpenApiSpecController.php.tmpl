@@ -43,8 +43,9 @@ class OpenApiSpecController extends \yii\web\Controller
      * display swagger yaml
      *
      * @param string $format default: yaml
+     * @return mixed
      */
-    public function actionIndex(string $format = null): string
+    public function actionIndex(string $format = null)
     {
         $cache = $this->module->get($this->cache);
         $cacheKey = 'cache.apidoc.' . $format;
@@ -57,10 +58,11 @@ class OpenApiSpecController extends \yii\web\Controller
             if (empty($contents))
                 $contents = $openapi->toJson();
 
-            $this->response->format = 'json';
+            $this->response->format = $this->response::FORMAT_JSON;
         } elseif ($format == 'yaml') {
             if (empty($contents))
                 $contents = $openapi->toYaml();
+
             $this->response->headers->set('Content-Type', 'application/x-yaml');
         } else {
             if (empty($contents)) {
@@ -68,12 +70,12 @@ class OpenApiSpecController extends \yii\web\Controller
                 $yamlUri = strstr(\yii\helpers\Url::to(['/apidoc', 'format'=>'yaml'], true), '//');
                 $contents = $this->view->renderFile($viewFile, ['yamlUri'=>$yamlUri]);
             }
-            $this->response->format = 'html';
+            $this->response->format = $this->response::FORMAT_HTML;
         }
 
         // set cache
         $cache->set($cacheKey, $contents, 120);
-
-        return $contents;
+        $this->response->content = $contents;
+        return $this->response;
     }
 }
