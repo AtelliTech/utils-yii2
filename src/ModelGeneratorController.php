@@ -357,7 +357,7 @@ class ModelGeneratorController extends Controller
             $type = $col->phpType;
             if ($type == 'resource')
                 $type = 'object';
-            elseif ($type == 'bigint')
+            elseif ($col->type == 'bigint')
                 $type = 'integer';
 
             if ($col->autoIncrement)
