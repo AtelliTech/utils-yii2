@@ -4,6 +4,7 @@ namespace <?= $namespace ?>;
 
 use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
+use yii\behaviors\AttributeTypecastBehavior;
 use yii\db\ActiveRecord;
 
 /**
@@ -40,6 +41,7 @@ class <?= $className ?> extends ActiveRecord
     public function behaviors()
     {
         return [
+            AttributeTypecastBehavior::className(),
 <?php if (isset($attributes['created_by']) && isset($attributes['updated_by'])): ?>
             [
                 'class' => BlameableBehavior::className(),
