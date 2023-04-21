@@ -6,6 +6,7 @@ use yii\behaviors\BlameableBehavior;
 use yii\behaviors\TimestampBehavior;
 use yii\behaviors\AttributeTypecastBehavior;
 use yii\db\ActiveRecord;
+use yii\db\ActiveQuery;
 
 /**
  * @OA\Schema(
@@ -41,15 +42,20 @@ class <?= $className ?> extends ActiveRecord
     public function behaviors()
     {
         return [
-            AttributeTypecastBehavior::className(),
+            [
+                'class' => AttributeTypecastBehavior::class,
+                'typecastAfterValidate' => true,
+                'typecastBeforeSave' => true,
+                'typecastAfterFind' => true,
+            ],
 <?php if (isset($attributes['created_by']) && isset($attributes['updated_by'])): ?>
             [
-                'class' => BlameableBehavior::className(),
+                'class' => BlameableBehavior::class,
                 'defaultValue' => 0,
             ],
 <?php endif ?>
 <?php if (isset($attributes['created_at']) && isset($attributes['updated_at'])): ?>
-            TimestampBehavior::className()
+            TimestampBehavior::class
 <?php endif; ?>
         ];
     }
