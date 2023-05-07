@@ -5,7 +5,7 @@ namespace AtelliTech\Yii2\Utils\Log;
 use Exception;
 use Throwable;
 use Yii;
-use yii\base\Request;
+use yii\web\Request;
 use yii\helpers\VarDumper;
 use yii\log\FileTarget;
 use yii\log\Logger;
