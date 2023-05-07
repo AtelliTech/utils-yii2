@@ -5,6 +5,7 @@ namespace AtelliTech\Yii2\Utils\log;
 use Exception;
 use Throwable;
 use Yii;
+use yii\base\Request;
 use yii\helpers\VarDumper;
 use yii\log\FileTarget;
 use yii\log\Logger;
@@ -18,7 +19,7 @@ class JsonFileLogTarget extends FileTarget
 {
     /**
      * Formats a log message for display as a string.
-     * @param array $message the log message to be formatted.
+     * @param array<int, mixed> $message the log message to be formatted.
      * The message structure follows that in [[Logger::messages]].
      * @return string the formatted message
      */
@@ -50,9 +51,9 @@ class JsonFileLogTarget extends FileTarget
             $stacks = isset($splits[1]) ? (explode("\n", trim($splits[1], "\n"))) : [];
         }
 
-        $user = '-';
+        $userID = '-';
         $ip = '-';
-        $session = '-';
+        $sessionID = '-';
         if (Yii::$app !== null) {
             $request = Yii::$app->getRequest();
             $ip = $request instanceof Request ? $request->getUserIP() : '-';
@@ -71,7 +72,7 @@ class JsonFileLogTarget extends FileTarget
         }
 
         return json_encode([
-                'time' => $this->owner->getTime($timestamp),
+                'time' => $this->getTime($timestamp),
                 'ip' => $ip,
                 'userID' => $userID,
                 'sessionID' => $sessionID,

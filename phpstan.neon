@@ -4,3 +4,4 @@ parameters:
         - src
     bootstrapFiles:
         - vendor/yiisoft/yii2/Yii.php
+    treatPhpDocTypesAsCertain: false
