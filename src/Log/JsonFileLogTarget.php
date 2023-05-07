@@ -1,6 +1,6 @@
 <?php
 
-namespace AtelliTech\Yii2\Utils\log;
+namespace AtelliTech\Yii2\Utils\Log;
 
 use Exception;
 use Throwable;
