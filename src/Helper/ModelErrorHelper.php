@@ -1,6 +1,6 @@
 <?php
 
-namespace AtelliTech\Yii2\Helper;
+namespace AtelliTech\Yii2\Utils\Helper;
 
 use yii\base\Model;
 
