@@ -38,8 +38,9 @@ class ModelErrorHelper
     {
         $errors = $model->getErrors();
         $messages = [];
-        foreach($errors as $name=>$error) {
-            $messages[] = sprintf('The attribute(%s) has error(%s)', $name, $error);
+        foreach($errors as $name=>$errors) {
+            foreach($errors as $error)
+                $messages[] = sprintf('The attribute(%s) has error(%s)', $name, $error);
         }
 
         return $messages;
