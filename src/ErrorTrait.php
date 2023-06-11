@@ -29,6 +29,20 @@ trait ErrorTrait
     }
 
     /**
+     * set error values
+     *
+     * @param array $error
+     * @return void
+     */
+    public function setErrorValues(array $error): void
+    {
+        foreach($this->errorValues as $name=>$value) {
+            if (isset($error[$name]))
+                $this->errorValues[$name] = $error[$name];
+        }
+    }
+
+    /**
      * set error code
      *
      * @param int $code
