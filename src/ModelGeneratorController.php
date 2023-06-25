@@ -56,7 +56,7 @@ class ModelGeneratorController extends Controller
     public function options($actionID): array
     {
         return array_merge(parent::options($actionID), [
-            'path', 'namespace', 'template'
+            'path', 'namespace', 'template', 'db', 'oldDb'
         ]);
     }
 
