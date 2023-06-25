@@ -14,7 +14,7 @@ class CustomError
 	 *
 	 * @param string $message
 	 * @param int $code
-	 * @param array<string, mixed> $details
+	 * @param array<int, array<string, mixed>> $details
 	 * @return void
 	 */
 	public function __construct(
@@ -46,7 +46,7 @@ class CustomError
 	/**
 	 * Get the value of details
 	 *
-	 * @return array<string, mixed>
+	 * @return array<int, array<string, mixed>>
 	 */
 	public function getDetails(): array
 	{
@@ -82,7 +82,7 @@ class CustomError
 	/**
 	 * Set the value of details
 	 *
-	 * @param array<string, mixed> $details
+	 * @param array<int, array<string, mixed>> $details
 	 * @return self
 	 */
 	public function setDetails(array $details): self

@@ -19,7 +19,7 @@ trait CustomErrorTrait
      *
      * @param string $message
      * @param int $code
-     * @param array<string, mixed> $details
+     * @param array<int, array<string, mixed>> $details
      * @return void
      */
     protected function setCustomError(string $message, int $code, array $details = []): void
