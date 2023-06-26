@@ -72,6 +72,26 @@ class <?= $className ?> extends ActiveRecord
         ];
     }
 
+<?php if (isset($attributes['created_by']) || isset($attributes['updated_by'])): ?>
+    /**
+     * fields
+     *
+     * @return array<string, mixed>
+     */
+    public function fields()
+    {
+        $fields = parent::fields();
+<?php if (isset($attributes['created_by'])): ?>
+        unset($fields['created_by']);
+<?php endif; ?>
+<?php if (isset($attributes['updated_by'])): ?>
+        unset($fields['updated_by']);
+<?php endif; ?>
+
+        return $fields;
+    }
+<?php endif; ?>
+
     /**
      * return extra fields
      *
