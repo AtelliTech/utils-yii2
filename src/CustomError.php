@@ -2,12 +2,15 @@
 
 namespace AtelliTech\Yii2\Utils;
 
+use Exception;
+use Throwable;
+
 /**
  * It's a custom error class.
  *
  * @author Eric Huang <eric.huang@atelli.ai>
  */
-class CustomError
+class CustomError extends Exception
 {
 	/**
 	 * construct
@@ -15,32 +18,16 @@ class CustomError
 	 * @param string $message
 	 * @param int $code
 	 * @param array<int, array<string, mixed>> $details
+	 * @param Throwable $previous
 	 * @return void
 	 */
 	public function __construct(
-		private string $message,
-		private int $code,
-		private array $details = []
-	) {}
-
-	/**
-	 * Get the value of message
-	 *
-	 * @return string
-	 */
-	public function getMessage(): string
-	{
-		return $this->message;
-	}
-
-	/**
-	 * Get the value of code
-	 *
-	 * @return int
-	 */
-	public function getCode(): int
-	{
-		return $this->code;
+		$message,
+		$code,
+		private array $details = [],
+		$previous = null
+	) {
+		parent::__construct($message, $code, $previous);
 	}
 
 	/**
@@ -123,7 +110,7 @@ class CustomError
 	 */
 	public function __toString(): string
 	{
-		return $this->toJson();
+		return __CLASS__ . ': ' . $this->toJson();
 	}
 
 	/**

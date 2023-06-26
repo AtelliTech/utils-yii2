@@ -84,7 +84,7 @@ $ /path/to/yii genapi {tableName} --option=value
 - name
 Name of module
 
-## Error Trait
+## Custom Error Trait
 This trait could attach to each class and provides store error message or detail messages
 
 ### Usage
@@ -92,11 +92,11 @@ This trait could attach to each class and provides store error message or detail
 class Abc
 {
     // attach trait
-    use AtelliTech\Yii2\Utils\ErrorTrait;
+    use AtelliTech\Yii2\Utils\CustomErrorTrait;
 }
 
 $abc = new Abc;
-$abc->getErrorCode(); // get error code
+$abc->getCustomError(); // get custom error
 ```
 
 ### Methods & Properties

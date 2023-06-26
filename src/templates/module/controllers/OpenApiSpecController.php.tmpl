@@ -35,46 +35,29 @@ use yii\web\HttpException;
 class OpenApiSpecController extends \yii\web\Controller
 {
     /**
-     * @var string $cache component id of cache
-     */
-    private $cache = 'cache';
-
-    /**
      * display swagger yaml
      *
      * @param string $format default: yaml
-     * @return mixed
+     * @return string|Response
      */
-    public function actionIndex(string $format = null)
+    public function actionIndex(?string $format = null): string|Response
     {
-        $cache = $this->module->get($this->cache);
-        $cacheKey = 'cache.apidoc.' . $format;
-        $openapi = \OpenApi\Generator::scan([
-                        Yii::getAlias('<?= $nameAlias ?>'),
-                        Yii::getAlias('@app/models')
-                    ]);
-        $contents = YII_DEBUG ? false : $cache->get($cacheKey);
+        $modulePath = Yii::getAlias('@v1');
+        $modelPath = Yii::getAlias('@app/models');
+        $openapi = \OpenApi\Generator::scan([$modulePath, $modelPath]);
         if ($format == 'json') {
-            if (empty($contents))
-                $contents = $openapi->toJson();
-
-            $this->response->format = $this->response::FORMAT_JSON;
+            $contents = $openapi->toJson();
+            $this->response->format = Response::FORMAT_JSON;
         } elseif ($format == 'yaml') {
-            if (empty($contents))
-                $contents = $openapi->toYaml();
-
+            $contents = $openapi->toYaml();
             $this->response->headers->set('Content-Type', 'application/x-yaml');
         } else {
-            if (empty($contents)) {
-                $viewFile = Yii::getAlias('<?= $nameAlias ?>/views/view_apidoc.php');
-                $yamlUri = strstr(\yii\helpers\Url::to(['/apidoc', 'format'=>'yaml'], true), '//');
-                $contents = $this->view->renderFile($viewFile, ['yamlUri'=>$yamlUri]);
-            }
-            $this->response->format = $this->response::FORMAT_HTML;
+            $viewFile = Yii::getAlias('@v1/views/view_apidoc.php');
+            $yamlUri = strstr(\yii\helpers\Url::to(['/apidoc', 'format'=>'yaml'], true), '//');
+            $contents = $this->view->renderFile($viewFile, ['yamlUri'=>$yamlUri]);
+            $this->response->format = Response::FORMAT_HTML;
         }
 
-        // set cache
-        $cache->set($cacheKey, $contents, 120);
         $this->response->content = $contents;
         return $this->response;
     }
