@@ -39,12 +39,14 @@ abstract class AbstractRepository
             $model->loadDefaultValues();
             $model->load($data, '');
             if (!$model->validate()) {
-                $this->setCustomError("Invalid data on create {$this->modelClass}", 400, [['input'=>$data, 'class'=>$this->modelClass], ['errors'=>$model->getErrorSummary(true)]]);
+                $errors = $model->getErrorSummary(true);
+                $this->setCustomError("Invalid data on create {$this->modelClass}. Err: " . implode(' ', $errors), 400, [['input'=>$data, 'class'=>$this->modelClass], ['errors'=>$errors]]);
                 return false;
             }
 
             if (!$model->save(false)) {
-                $this->setCustomError("Create {$this->modelClass}, failed", 500, [['input'=>$data, 'class'=>$this->modelClass], ['errors'=>$model->getErrorSummary(true)]]);
+                $errors = $model->getErrorSummary(true);
+                $this->setCustomError("Create {$this->modelClass}, failed. Err: " . implode(' ', $errors), 500, [['input'=>$data, 'class'=>$this->modelClass], ['errors'=>$errors]]);
                 return false;
             }
 
@@ -88,12 +90,14 @@ abstract class AbstractRepository
 
             $model->load($data, '');
             if (!$model->validate()) {
-                $this->setCustomError("Invalid data on update {$this->modelClass}", 400, [['input'=>['pk'=>$model->getPrimaryKey(), 'data'=>$data, 'scenario'=>$scenario]], ['errors'=>$model->getErrorSummary(true)]]);
+                $errors = $model->getErrorSummary(true);
+                $this->setCustomError("Invalid data on update {$this->modelClass}. Err: " . implode(' ', $errors), 400, [['input'=>['pk'=>$model->getPrimaryKey(), 'data'=>$data, 'scenario'=>$scenario]], ['errors'=>$errors]]);
                 return false;
             }
 
             if (!$model->save(false)) {
-                $this->setCustomError("Create {$this->modelClass}, failed", 500, [['input'=>['pk'=>$model->getPrimaryKey(), 'data'=>$data, 'scenario'=>$scenario]], ['errors'=>$model->getErrorSummary(true)]]);
+                $errors = $model->getErrorSummary(true);
+                $this->setCustomError("Create {$this->modelClass}, failed. Err: " . implode(' ', $errors), 500, [['input'=>['pk'=>$model->getPrimaryKey(), 'data'=>$data, 'scenario'=>$scenario]], ['errors'=>$errors]]);
                 return false;
             }
 
@@ -131,7 +135,8 @@ abstract class AbstractRepository
             }
 
             if (!$model->delete()) {
-                $this->setCustomError("Delete {$this->modelClass}, failed", 500, [['input'=>['pk'=>$model->getPrimaryKey()]], ['errors'=>$model->getErrorSummary(true)]]);
+                $errors = $model->getErrorSummary(true);
+                $this->setCustomError("Delete {$this->modelClass}, failed. Err: " . implode(' ', $errors), 500, [['input'=>['pk'=>$model->getPrimaryKey()]], ['errors'=>$errors]]);
                 return false;
             }
 
