@@ -6,6 +6,7 @@ use Exception;
 use Throwable;
 use Yii;
 use yii\web\Request;
+use yii\helpers\ArrayHelper as Arr;
 use yii\helpers\VarDumper;
 use yii\log\FileTarget;
 use yii\log\Logger;
@@ -27,12 +28,14 @@ class JsonFileLogTarget extends FileTarget
     {
         list($text, $level, $category, $timestamp) = $message;
         $level = Logger::getLevelName($level);
+        $data = [];
         if (!is_string($text)) {
             // exceptions may not be serializable if in the call stack somewhere is a Closure
             if ($text instanceof Exception || $text instanceof Throwable) {
                 $text = (string) $text;
             } else {
-                $text = VarDumper::export($text);
+                $text = '-';
+                $data = Arr::toArray($text);
             }
         }
 
@@ -80,7 +83,8 @@ class JsonFileLogTarget extends FileTarget
                 'category' => $category,
                 'text' => $text,
                 'traces' => $traces,
-                'stacks' => $stacks
+                'stacks' => $stacks,
+                'data' => $data
             ]);
     }
 }
