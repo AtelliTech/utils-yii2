@@ -34,8 +34,8 @@ class JsonFileLogTarget extends FileTarget
             if ($text instanceof Exception || $text instanceof Throwable) {
                 $text = (string) $text;
             } else {
-                $text = '-';
                 $data = Arr::toArray($text);
+                $text = '-';
             }
         }
 
