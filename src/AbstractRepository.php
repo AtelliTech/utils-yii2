@@ -188,4 +188,14 @@ abstract class AbstractRepository
     {
         return $this->modelClass::findOne($condition);
     }
+
+    /**
+     * get db
+     *
+     * @return Connection
+     */
+    public function getDb(): Connection
+    {
+        return $this->modelClass::getDb();
+    }
 }
