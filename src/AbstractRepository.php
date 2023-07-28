@@ -5,6 +5,7 @@ namespace AtelliTech\Yii2\Utils;
 use Exception;
 use yii\db\ActiveRecord;
 use yii\db\ActiveQuery;
+use yii\db\Connection;
 
 /**
  * This is an abstract repository class for accessing ActiveRecord, so every repository class should extend this class
