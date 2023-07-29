@@ -101,24 +101,4 @@ class <?= $className ?> extends ActiveRecord
     {
 <?= $extraFields . "\n" ?>
     }
-
-    /**
-     * declare relation for 1 to many
-     *
-     * @return ActiveQuery[]|ActiveQuery
-     */
-    public function getXXXXXXs(): array|ActiveQuery
-    {
-        return $this->hasMany(XXXXXX::class, ['id'=>'id']);
-    }
-
-    /**
-     * declare relation for 1 to 1
-     *
-     * @return ActiveQuery|array<string, mixed>|null
-     */
-    public function getXXXXXX(): ActiveQuery|array|null
-    {
-        return $this->hasOne(XXXXXX::class, ['id'=>'id']);
-    }
 }
