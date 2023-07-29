@@ -118,7 +118,9 @@ class ModelGeneratorController extends Controller
                 $ruleTypes[$type] = [];
 
             $ruleTypes[$type][] = $name;
-            $ruleTypes['trim'][] = $name;
+
+            if ($type === 'string')
+                $ruleTypes['trim'][] = $name;
 
             // extract extra field of relation column
             if (preg_match('/\_id$/', $name) != false)
@@ -366,7 +368,14 @@ class ModelGeneratorController extends Controller
             if ($col->isPrimaryKey)
                 $comment .= ' #pk';
 
-            $default = $col->defaultValue === null ? null : sprintf('"%s"', $col->defaultValue);
+            if ($col->defaultValue === null)
+                $default = null;
+            else {
+                $default = $col->defaultValue;
+                if ($type === 'string')
+                    $default = sprintf('"%s"', $default);
+            }
+
             $maxLength = $col->size;
             $enum = null;
             if (!empty($col->enumValues))

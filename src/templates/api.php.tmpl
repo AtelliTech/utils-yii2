@@ -171,6 +171,8 @@ class <?= $className ?>Controller extends ActiveApiController
 
     /**
      * {@inherit}
+     *
+     * @return array<string, mixed>
      */
     public function actions()
     {
@@ -185,6 +187,8 @@ class <?= $className ?>Controller extends ActiveApiController
         $actions['index']['pagination'] = [
             'class' => '<?= $name ?>\components\Pagination'
         ];
+
+        unset($actions['index']);
 
         return $actions;
     }
@@ -201,13 +205,7 @@ class <?= $className ?>Controller extends ActiveApiController
      *         required=false,
      *         @OA\MediaType(
      *             mediaType="application/json",
-     *             @OA\Schema(
-     *                  @OA\Property(property="page", ref="#/components/schemas/StandardParams/properties/page"),
-     *                  @OA\Property(property="pageSize", ref="#/components/schemas/StandardParams/properties/pageSize"),
-     *                  @OA\Property(property="sort", ref="#/components/schemas/StandardParams/properties/sort"),
-     *                  @OA\Property(property="fields", ref="#/components/schemas/StandardParams/properties/fields"),
-     *                  @OA\Property(property="expand", type="string", enum={"xxxx"}, description="Query related models, using comma(,) be seperator"),
-     *             )
+     *             @OA\Schema(ref="#/components/schemas/xxxxxSearchModel")
      *         ),
      *     ),
      *     @OA\Response(
@@ -224,21 +222,21 @@ class <?= $className ?>Controller extends ActiveApiController
      * )
      *
      * Search <?= $className . "\n" ?>
+     *
+     * @param xxxxxService $service
+     * @return ActiveDataProvider
      */
-    public function actionSearch()
+    public function actionSearch(xxxxxService $service): ActiveDataProvider
     {
         try {
             $params = $this->getRequestParams();
-            $filter = new XxxxxFilter;
-            $filter->load($params, '');
-            if (!$filter->validate()) {
-                $errors = $filter->getErrorSummary(false);
-                $message = implode("\n", $errors);
-                throw new HttpException(400, $message);
+            $searchModel = new xxxxxSearchModel($params);
+            if (!$searchModel->validate()) {
+                throw new BadRequestHttpException(implode(' ', $searchModel->getErrorSummary(true)));
             }
 
             return new ActiveDataProvider([
-                'query' => $filter->apply(),
+                'query' => $service->createSearchQuery($searchModel),
                 'pagination' => [
                     'class' => '<?= $name ?>\components\Pagination',
                     'params' => $params
