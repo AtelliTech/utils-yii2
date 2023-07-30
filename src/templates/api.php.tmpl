@@ -230,13 +230,10 @@ class <?= $className ?>Controller extends ActiveApiController
     {
         try {
             $params = $this->getRequestParams();
-            $searchModel = new xxxxxSearchModel($params);
-            if (!$searchModel->validate()) {
-                throw new BadRequestHttpException(implode(' ', $searchModel->getErrorSummary(true)));
-            }
+            $query = $service->createSearchQuery($params);
 
             return new ActiveDataProvider([
-                'query' => $service->createSearchQuery($searchModel),
+                'query' => &$query,
                 'pagination' => [
                     'class' => '<?= $name ?>\components\Pagination',
                     'params' => $params
