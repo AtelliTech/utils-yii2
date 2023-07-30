@@ -81,13 +81,11 @@ class <?= $className ?> extends ActiveRecord
     public function fields()
     {
         $fields = parent::fields();
-<?php if (isset($attributes['created_by'])): ?>
-        unset($fields['created_by']);
+<?php foreach($attributes as $name=>$value): ?>
+<?php if (preg_match('/\_by$/', $name) != false): ?>
+        unset($fields['<?= $name ?>']);
 <?php endif; ?>
-<?php if (isset($attributes['updated_by'])): ?>
-        unset($fields['updated_by']);
-<?php endif; ?>
-
+<?php endforeach; ?>
         return $fields;
     }
 <?php endif; ?>
