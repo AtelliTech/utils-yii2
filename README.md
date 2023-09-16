@@ -20,7 +20,7 @@ This generator is used to create model class by particular table name.
 "controllerMap": [
     'genmodel' => [
         'class' => 'AtelliTech\Yii2\Utils\ModelGeneratorController',
-        'db' => 'db' // db comopnent id default: db
+        'db' => 'db', // db comopnent id default: db
         'path' => '@app/models', // store path of model class file default: @app/models
         'namespace' => 'app\models', // namespace of model class default: app\models
     ],
@@ -84,20 +84,21 @@ $ /path/to/yii genapi {tableName} --option=value
 - name
 Name of module
 
-## Custom Error Trait
-This trait could attach to each class and provides store error message or detail messages
+## Container definition Dumper
+Dump service and repository files to definitions of container file
 
-### Usage
+### Getting Start
+#### Add controllerMap into config file of console.
 ```php=
-class Abc
-{
-    // attach trait
-    use AtelliTech\Yii2\Utils\CustomErrorTrait;
-}
-
-$abc = new Abc;
-$abc->getCustomError(); // get custom error
+...
+"controllerMap": [
+    'container' => [
+        'class' => 'AtelliTech\Yii2\Utils\ContainerController'
+    ],
+]
 ```
 
-### Methods & Properties
-@see [https://github.com/AtelliTech/utils-yii2/tree/main/docs](https://github.com/AtelliTech/utils-yii2/tree/main/docs)
+#### Usage
+```
+$ /path/to/yii container/definitions --srcPath={srcPath} --destPath={destPath} --srcNs={srcNs} --suffix={suffix}
+```
