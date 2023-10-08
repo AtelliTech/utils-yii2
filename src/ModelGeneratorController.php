@@ -329,7 +329,7 @@ class ModelGeneratorController extends Controller
                 if ($type == 'in')
                     $rules[] = sprintf("            [['%s'], '%s', 'range'=>['%s']],", $name, $type, implode("', '", $item['range']));
                 elseif ($type == 'defaults')
-                    $rules[] = sprintf("            [['%s'], 'default', 'value'=>'%s'],", $item[0], $item[1]);
+                    $rules[] = sprintf("            [['%s'], 'default', 'value'=>'%s'],", $name, $item['value']);
             }
         }
 

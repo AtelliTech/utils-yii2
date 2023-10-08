@@ -102,3 +102,24 @@ Dump service and repository files to definitions of container file
 ```
 $ /path/to/yii container/definitions --srcPath={srcPath} --destPath={destPath} --srcNs={srcNs} --suffix={suffix}
 ```
+
+## JsonFileLogTarge
+Support exporting log in JSON.
+
+Note: this class is extending yii\log\FileTarget
+
+### Getting Start
+#### Add to config file
+```php=
+...
+'log' => [
+        'traceLevel' => YII_DEBUG ? 3 : 0,
+        'targets' => [
+            [
+                'class' => 'AtelliTech\Yii2\Utils\Log\JsonFileLogTarget',
+                'levels' => ['error', 'warning'],
+                'logFile' => '@app/runtime/logs/web.log',
+            ],
+        ],
+    ],
+```
