@@ -134,6 +134,14 @@ class ModelGeneratorController extends Controller
                 $otherRules['in'][$name] = ['range'=>$col->enumValues];
             }
 
+            // extract default value
+            if (!empty($col->defaultValue)) {
+                if (!isset($otherRules['defaults']))
+                    $otherRules['defaults'] = [];
+
+                $otherRules['defaults'][$name] = ['value'=>$col->defaultValue];
+            }
+
             // set attributes
             $attributes[$name] = 1;
         }
@@ -320,6 +328,8 @@ class ModelGeneratorController extends Controller
             foreach($items as $name=>$item) {
                 if ($type == 'in')
                     $rules[] = sprintf("            [['%s'], '%s', 'range'=>['%s']],", $name, $type, implode("', '", $item['range']));
+                elseif ($type == 'defaults')
+                    $rules[] = sprintf("            [['%s'], 'default', 'value'=>'%s'],", $item[0], $item[1]);
             }
         }
 
