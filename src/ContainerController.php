@@ -21,14 +21,9 @@ class ContainerController extends Controller
     public $destPath = '@app/config/container/definitions.php';
 
     /**
-     * @var string
+     * @var array<int, mixed>
      */
-    public $srcPath = '@app/components';
-
-    /**
-     * @var string
-     */
-    public $srcNamespace = 'app\\components';
+    public $sources = [['app\components', '@app/components']];
 
     /**
      * @var string
@@ -49,7 +44,7 @@ class ContainerController extends Controller
     public function options($actionID): array
     {
         return array_merge(parent::options($actionID), [
-            'srcPath', 'destPath', 'srcNamespace', 'suffix'
+            'destPath', 'suffix'
         ]);
     }
 
@@ -61,8 +56,6 @@ class ContainerController extends Controller
     public function optionAliases(): array
     {
         return array_merge(parent::optionAliases(), [
-            'src' => 'srcPath',
-            'srcNs' => 'srcNamespace',
             'dest' => 'destPath'
         ]);
     }
@@ -74,21 +67,24 @@ class ContainerController extends Controller
      */
     public function actionDefinitions()
     {
-        $srcPath = Yii::getAlias($this->srcPath);
-        $entries = FileHelper::findFiles($srcPath);
         $dis = [];
-        $pattern = '/.+(' . $this->suffix . ')\.php$/';
-        foreach($entries as $entry) {
-            if (preg_match($pattern, $entry) == false)
-                continue;
+        foreach($this->sources as $source) {
+            list($ns, $srcPath) = $source;
+            $srcPath = Yii::getAlias($srcPath);
+            $entries = FileHelper::findFiles($srcPath);
+            $pattern = '/.+(' . $this->suffix . ')\.php$/';
+            foreach($entries as $entry) {
+                if (preg_match($pattern, $entry) == false)
+                    continue;
 
-            $filename = basename($entry);
-            if (in_array($filename, $this->exceptClasses))
-                continue;
+                $filename = basename($entry);
+                if (in_array($filename, $this->exceptClasses))
+                    continue;
 
-            $class = str_replace([$srcPath, '/'], [$this->srcNamespace, '\\'], $entry);
-            $class = substr($class, 0, -4);
-            $dis[] = $class;
+                $class = str_replace([$srcPath, '/'], [$ns, '\\'], $entry);
+                $class = substr($class, 0, -4);
+                $dis[] = $class;
+            }
         }
 
         sort($dis);
