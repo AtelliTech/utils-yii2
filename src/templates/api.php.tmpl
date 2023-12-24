@@ -2,8 +2,8 @@
 
 namespace <?= $name ?>\controllers;
 
+use Throwable;
 use <?= $name ?>\components\ActiveApiController;
-use yii\base\Exception;
 use yii\data\ActiveDataProvider;
 use yii\web\HttpException;
 
@@ -242,7 +242,7 @@ class <?= $className ?>Controller extends ActiveApiController
                     'params' => $params
                 ]
             ]);
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             throw $e;
         }
     }
