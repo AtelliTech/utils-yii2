@@ -24,25 +24,6 @@ use yii\helpers\FileHelper;
 class JsonFileLogTarget extends FileTarget
 {
     /**
-     * @var string[]
-     */
-    protected $defaultMaskVars = ['_SERVER.LS_COLORS', '_SERVER.SHELL', '_SERVER.PWD', '_SERVER.LOGNAME', '_SERVER.XDG_SESSION_TYPE', '_SERVER.MOTD_SHOWN', '_SERVER.HOME', '_SERVER.LANG', '_SERVER.LS_COLORS', '_SERVER.SSH_CONNECTION', '_SERVER.LESSCLOSE', '_SERVER.XDG_SESSION_CLASS', '_SERVER.TERM', '_SERVER.LESSOPEN', '_SERVER.USER', '_SERVER.DISPLAY', '_SERVER.SHLVL', '_SERVER.XDG_SESSION_ID', '_SERVER.XDG_RUNTIME_DIR', '_SERVER.SSH_CLIENT', '_SERVER.XDG_DATA_DIRS', '_SERVER.PATH', '_SERVER.DBUS_SESSION_BUS_ADDRESS', '_SERVER.SSH_TTY', '_SERVER.OLDPWD', '_SERVER._', '_SERVER.PHP_SELF', '_SERVER.SCRIPT_NAME', '_SERVER.SCRIPT_FILENAME', '_SERVER.PATH_TRANSLATED', '_SERVER.DOCUMENT_ROOT'];
-
-
-    /**
-     * init
-     *
-     * @return void
-     */
-    public function init()
-    {
-        parent::init();
-
-        if (empty($this->maskVars))
-            $this->maskVars = $this->defaultMaskVars;
-    }
-
-    /**
      * Formats a log message for display as a string.
      * @param array<int, mixed> $message the log message to be formatted.
      * The message structure follows that in [[Logger::messages]].
