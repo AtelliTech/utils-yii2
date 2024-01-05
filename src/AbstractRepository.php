@@ -22,6 +22,32 @@ abstract class AbstractRepository
     protected string $modelClass;
 
     /**
+     * create or update
+     *
+     * @param int|array<string, mixed>|ActiveRecord $pk primary key
+     * @param array<string, mixed> $data
+     * @param string|null $scenario default: null
+     * @return ActiveRecord
+     */
+    public function createOrUpdate(array|int|ActiveRecord $pk, array $data, string $scenario = null): ActiveRecord
+    {
+        $model = null;
+        if ($pk instanceof ActiveRecord) {
+            if (($className=$pk::class) !== $this->modelClass)
+                throw new Exception("Invalid primary key of model class(" . $this->modelClass . ")", 400);
+
+            $model = &$pk;
+        } else if (is_int($pk) || is_array($pk)) {
+            $model = $this->findOne($pk);
+        }
+
+        if (empty($model))
+            return $this->create($data, $scenario);
+        else
+            return $this->update($model, $data, $scenario);
+    }
+
+    /**
      * create
      *
      * @param array<string, mixed> $data
