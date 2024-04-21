@@ -15,7 +15,6 @@ use yii\base\InvalidConfigException;
 use yii\log\LogRuntimeException;
 use yii\helpers\FileHelper;
 
-
 /**
  * This log target extends yii\log\FileTarget and modify its formatMessage method.
  *
@@ -35,37 +34,34 @@ class JsonFileLogTarget extends FileTarget
         $level = Logger::getLevelName($level);
         if (!is_string($text)) {
             // exceptions may not be serializable if in the call stack somewhere is a Closure
-            if ($text instanceof Exception || $text instanceof Throwable) {
-                $text = (string) $text;
+            if ($text instanceof \Exception || $text instanceof \Throwable) {
+                $errMsg = $text->getMessage();
+                if (!isset($message[4]) || empty($message[4])) {
+                    $message[4] = $text->getTrace();
+                }
             } else {
-                $text = VarDumper::export($text);
+                $errMsg = VarDumper::export($text);
             }
+        } else {
+            $errMsg = $text;
         }
+
         $traces = [];
-        if (isset($message[4])) {
+        if (isset($message[4]) && !empty($message[4])) {
             foreach ($message[4] as $trace) {
                 $traces[] = "in {$trace['file']}:{$trace['line']}";
             }
         }
 
-        $userID = '-';
-        $ip = '-';
-        $sessionID = '-';
-        if (Yii::$app !== null) {
-            $request = Yii::$app->getRequest();
-            $ip = $request instanceof Request ? $request->getUserIP() : '-';
-
-            /* @var $user \yii\web\User */
-            $user = Yii::$app->has('user', true) ? Yii::$app->get('user') : null;
-            if ($user && ($identity = $user->getIdentity(false))) {
-                $userID = $identity->getId();
-            } else {
-                $userID = '-';
-            }
-
-            /* @var $session \yii\web\Session */
-            $session = Yii::$app->has('session', true) ? Yii::$app->get('session') : null;
-            $sessionID = $session && $session->getIsActive() ? $session->getId() : '-';
+        $prefix = $this->getMessagePrefix($message);
+        if (preg_match('/^\[(.*)\]\[(.*)\]\[(.*)\]$/', $prefix, $matches)) {
+            $ip = $matches[1];
+            $userID = $matches[2];
+            $sessionID = $matches[3];
+        } else {
+            $ip = '-';
+            $userID = '-';
+            $sessionID = '-';
         }
 
         return Json::encode([
@@ -75,7 +71,7 @@ class JsonFileLogTarget extends FileTarget
                 'sessionID' => $sessionID,
                 'level' => $level,
                 'category' => $category,
-                'text' => $text,
+                'text' => $errMsg,
                 'traces' => $traces
             ]);
     }
