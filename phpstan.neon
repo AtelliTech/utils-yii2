@@ -5,3 +5,4 @@ parameters:
     bootstrapFiles:
         - vendor/yiisoft/yii2/Yii.php
     treatPhpDocTypesAsCertain: false
+    tmpDir: phpstan
