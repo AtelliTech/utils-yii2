@@ -35,10 +35,7 @@ class JsonFileLogTarget extends FileTarget
         if (!is_string($text)) {
             // exceptions may not be serializable if in the call stack somewhere is a Closure
             if ($text instanceof \Exception || $text instanceof \Throwable) {
-                $errMsg = $text->getMessage();
-                if (!isset($message[4]) || empty($message[4])) {
-                    $message[4] = $text->getTrace();
-                }
+                $errMsg = (string) $text;
             } else {
                 $errMsg = VarDumper::export($text);
             }
@@ -72,7 +69,7 @@ class JsonFileLogTarget extends FileTarget
                 'level' => $level,
                 'category' => $category,
                 'text' => $errMsg,
-                'traces' => $traces
+                'traces' => implode("\n    ", $traces)
             ]);
     }
 
