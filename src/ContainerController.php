@@ -3,7 +3,6 @@
 namespace AtelliTech\Yii2\Utils;
 
 use Yii;
-use yii\base\Exception;
 use yii\console\Controller;
 use yii\helpers\FileHelper;
 
@@ -11,6 +10,7 @@ use yii\helpers\FileHelper;
  * Dumper a file that register all service and repository files with specific suffix. The default suffix is 'Repo' and 'Service'.
  *
  * @author Eric Huang <eric.huang@cyntelli.com>
+ *
  * @version 1.0.0
  */
 class ContainerController extends Controller
@@ -36,7 +36,7 @@ class ContainerController extends Controller
     public $exceptClasses = [];
 
     /**
-     * declare options
+     * declare options.
      *
      * @param string $actionID
      * @return string[]
@@ -44,11 +44,11 @@ class ContainerController extends Controller
     public function options($actionID): array
     {
         return array_merge(parent::options($actionID), [
-            'destPath', 'suffix'
+            'destPath', 'suffix',
         ]);
     }
 
-     /**
+    /**
      * {@inheritdoc}
      *
      * @return array<string, string>
@@ -56,30 +56,32 @@ class ContainerController extends Controller
     public function optionAliases(): array
     {
         return array_merge(parent::optionAliases(), [
-            'dest' => 'destPath'
+            'dest' => 'destPath',
         ]);
     }
 
     /**
-     * dump definitions
+     * dump definitions.
      *
      * @return void
      */
     public function actionDefinitions()
     {
         $dis = [];
-        foreach($this->sources as $source) {
+        foreach ($this->sources as $source) {
             list($ns, $srcPath) = $source;
             $srcPath = Yii::getAlias($srcPath);
             $entries = FileHelper::findFiles($srcPath);
-            $pattern = '/.+(' . $this->suffix . ')\.php$/';
-            foreach($entries as $entry) {
-                if (preg_match($pattern, $entry) == false)
+            $pattern = '/.+('.$this->suffix.')\.php$/';
+            foreach ($entries as $entry) {
+                if (false == preg_match($pattern, $entry)) {
                     continue;
+                }
 
                 $filename = basename($entry);
-                if (in_array($filename, $this->exceptClasses))
+                if (in_array($filename, $this->exceptClasses)) {
                     continue;
+                }
 
                 $class = str_replace([$srcPath, '/'], [$ns, '\\'], $entry);
                 $class = substr($class, 0, -4);
@@ -89,14 +91,14 @@ class ContainerController extends Controller
 
         sort($dis);
 
-        $content = '<?php' . PHP_EOL;
-        $content .= 'return [' . PHP_EOL;
-        foreach($dis as $di) {
-            $content .= "        '$di' => '$di'," . PHP_EOL;
+        $content = '<?php'.PHP_EOL;
+        $content .= 'return ['.PHP_EOL;
+        foreach ($dis as $di) {
+            $content .= "        '{$di}' => '{$di}',".PHP_EOL;
         }
-        $content .= '    ];' . PHP_EOL;
+        $content .= '    ];'.PHP_EOL;
         $dest = Yii::getAlias($this->destPath);
         file_put_contents($dest, $content);
-        echo "\nDumped to $dest\n";
+        echo "\nDumped to {$dest}\n";
     }
 }
