@@ -16,7 +16,7 @@
   <script>
     (async () => {
       const docs = document.getElementById('docs');
-      const text = await fetch('<?= "<?= \$yamlUri ?>" ?>').then(res => res.text())
+      const text = await fetch('<?php echo '<?= $yamlUri ?>'; ?>').then(res => res.text())
       docs.apiDescriptionDocument = text;
     })();
   </script>

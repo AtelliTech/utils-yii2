@@ -10,45 +10,46 @@ use yii\helpers\Console;
 use yii\helpers\Inflector;
 
 /**
- * code generator controlelr
+ * code generator controlelr.
  *
  * @author Eric Huang <eric.huang@cyntelli.com>
+ *
  * @version 1.0.0
  */
 class ModelGeneratorController extends Controller
 {
     /**
-     * @var string $path default: @app/models
+     * @var string default: @app/models
      */
     public $path = '@app/models';
 
     /**
-     * @var string $namespace default app\models
+     * @var string default app\models
      */
     public $namespace = 'app\models';
 
     /**
-     * @var string $template default: @app/views/template/model.php
+     * @var string default: @app/views/template/model.php
      */
     public $template = '@vendor/atellitech/utils-yii2/src/templates/model.php.tmpl';
 
     /**
-     * @var string $db database component id default: db
+     * @var string database component id default: db
      */
     public $db = 'db';
 
     /**
-     * @var string $oldDb original database component id
+     * @var string original database component id
      */
     public $oldDb;
 
     /**
-     * @var string $defaultAction
+     * @var string
      */
     public $defaultAction = 'generate';
 
     /**
-     * declare options
+     * declare options.
      *
      * @param string $actionID
      * @return string[]
@@ -56,11 +57,11 @@ class ModelGeneratorController extends Controller
     public function options($actionID): array
     {
         return array_merge(parent::options($actionID), [
-            'path', 'namespace', 'template', 'db', 'oldDb'
+            'path', 'namespace', 'template', 'db', 'oldDb',
         ]);
     }
 
-     /**
+    /**
      * {@inheritdoc}
      *
      * @return array<string, string>
@@ -70,25 +71,26 @@ class ModelGeneratorController extends Controller
         return array_merge(parent::optionAliases(), [
             'p' => 'path',
             'ns' => 'namespace',
-            'tmpl' => 'template'
+            'tmpl' => 'template',
         ]);
     }
 
     /**
-     * generate a model by specific table name
+     * generate a model by specific table name.
      *
      * @param string $tableName
      * @param int $override {0: false, 1: true} default: 0
-     * @return void|int
+     * @return int|void
      */
     public function actionGenerate(string $tableName, int $override = 0)
     {
         $className = Inflector::camelize($tableName);
         $classPath = sprintf('%s/%s.php', Yii::getAlias($this->path), $className);
         if (file_exists($classPath)) {
-            if ($override == 0) {
-                if (!$this->confirm("This model file exists($classPath), please type yes to override", true)) {
-                    echo $this->ansiFormat("\nSkip generate model of $tableName when type no\n");
+            if (0 == $override) {
+                if (!$this->confirm("This model file exists({$classPath}), please type yes to override", true)) {
+                    echo $this->ansiFormat("\nSkip generate model of {$tableName} when type no\n");
+
                     return 0;
                 }
             }
@@ -96,50 +98,57 @@ class ModelGeneratorController extends Controller
 
         // check director
         $dirname = dirname($classPath);
-        if (!is_dir($dirname))
+        if (!is_dir($dirname)) {
             mkdir($dirname, 0755, true);
+        }
 
         $db = $this->module->get($this->db);
         $schema = $db->getTableSchema($tableName);
         $attributes = [];
         $ruleTypes = [
-            'trim' => []
+            'trim' => [],
         ];
         $otherRules = [];
         $extraFields = [];
         $columns = $schema->columns;
-        foreach($columns as $name=>$col) {
-            if ($col->type === 'bigint')
+        foreach ($columns as $name => $col) {
+            if ('bigint' === $col->type) {
                 $type = 'integer';
-            else
+            } else {
                 $type = $col->phpType;
+            }
 
-            if (!isset($ruleTypes[$type]))
+            if (!isset($ruleTypes[$type])) {
                 $ruleTypes[$type] = [];
+            }
 
             $ruleTypes[$type][] = $name;
 
-            if ($type === 'string')
+            if ('string' === $type) {
                 $ruleTypes['trim'][] = $name;
+            }
 
             // extract extra field of relation column
-            if (preg_match('/\_id$/', $name) != false)
+            if (false != preg_match('/\_id$/', $name)) {
                 $extraFields[] = str_replace('_id', '', $name);
+            }
 
             // extract enum column
-            if (preg_match('/^enum/i', $col->dbType) != false) {
-                if (!isset($otherRules['in']))
+            if (false != preg_match('/^enum/i', $col->dbType)) {
+                if (!isset($otherRules['in'])) {
                     $otherRules['in'] = [];
+                }
 
-                $otherRules['in'][$name] = ['range'=>$col->enumValues];
+                $otherRules['in'][$name] = ['range' => $col->enumValues];
             }
 
             // extract default value
             if (!empty($col->defaultValue)) {
-                if (!isset($otherRules['defaults']))
+                if (!isset($otherRules['defaults'])) {
                     $otherRules['defaults'] = [];
+                }
 
-                $otherRules['defaults'][$name] = ['value'=>$col->defaultValue];
+                $otherRules['defaults'][$name] = ['value' => $col->defaultValue];
             }
 
             // set attributes
@@ -152,16 +161,18 @@ class ModelGeneratorController extends Controller
         // process annotations and requires
         list($schemas, $requires) = $this->createSchemaByColumns($columns);
         $annotations = [];
-        foreach($schemas as $schema) {
+        foreach ($schemas as $schema) {
             $attrsStr = '';
-            foreach($schema as $key=>$value) {
-                if ($value === null)
+            foreach ($schema as $key => $value) {
+                if (null === $value) {
                     continue;
+                }
 
-                if (!empty($attrsStr))
+                if (!empty($attrsStr)) {
                     $attrsStr .= ', ';
+                }
 
-                $attrsStr .= $key . '=' . $value;
+                $attrsStr .= $key.'='.$value;
             }
 
             $annotations[] = $attrsStr;
@@ -176,16 +187,16 @@ class ModelGeneratorController extends Controller
             'tableName' => $tableName,
             'rules' => implode("\n", $rules),
             'extraFields' => $this->composeExtraFields($extraFields),
-            'attributes' => $attributes
+            'attributes' => $attributes,
         ];
 
         $contents = $this->view->renderFile($this->template, $data);
         file_put_contents($classPath, $contents);
-        echo $this->ansiFormat("Create model $className(TableName: $tableName), success\n", Console::FG_GREEN);
+        echo $this->ansiFormat("Create model {$className}(TableName: {$tableName}), success\n", Console::FG_GREEN);
     }
 
     /**
-     * gernerate all table name's models
+     * gernerate all table name's models.
      *
      * @param int $override {0: false, 1: true} default: 1
      * @return void
@@ -195,18 +206,19 @@ class ModelGeneratorController extends Controller
         $db = $this->module->get($this->db);
         $sql = 'show tables';
         $rows = $db->createCommand($sql)
-                   ->queryColumn();
+            ->queryColumn();
 
-        foreach($rows as $tableName) {
-            if (preg_match('/\./', $tableName) != false)
+        foreach ($rows as $tableName) {
+            if (false != preg_match('/\./', $tableName)) {
                 continue;
+            }
 
             $this->run('generate', [$tableName, $override]);
         }
     }
 
     /**
-     * generator table migration
+     * generator table migration.
      *
      * @param string $tableName
      * @return void
@@ -215,31 +227,35 @@ class ModelGeneratorController extends Controller
     {
         $db = Yii::$app->get($this->db);
         $tableSchema = $db->getTableSchema($tableName);
-        if (empty($tableSchema))
-            throw new Exception("The table($tableName) not found", 404);
+        if (empty($tableSchema)) {
+            throw new Exception("The table({$tableName}) not found", 404);
+        }
 
         $syntax = '$this->createTable($this->table, [';
         $columns = $tableSchema->columns;
-        foreach($columns as $column) {
+        foreach ($columns as $column) {
             $name = $column->name;
 
             // check type
             if (str_starts_with($column->dbType, 'enum')) {
-                $chains = ['ENUM' . strstr($column->dbType, '(')];
+                $chains = ['ENUM'.strstr($column->dbType, '(')];
 
                 // check default
-                if (!empty($column->defaultValue))
+                if (!empty($column->defaultValue)) {
                     $chains[] = sprintf('DEFAULT "%s"', $column->defaultValue);
+                }
 
                 // check null
-                if ($column->allowNull)
+                if ($column->allowNull) {
                     $chains[] = 'NULL';
-                else
+                } else {
                     $chains[] = 'NOT NULL';
+                }
 
                 // check comment
-                if (!empty($column->comment))
-                    $chains[] = 'COMMENT \'' . str_replace('"', "\"", $column->comment) . '\'';
+                if (!empty($column->comment)) {
+                    $chains[] = 'COMMENT \''.str_replace('"', '"', $column->comment).'\'';
+                }
 
                 $syntax .= sprintf("\n    \"%s\" => \"%s\",", $name, implode(' ', $chains));
             } else {
@@ -251,10 +267,10 @@ class ModelGeneratorController extends Controller
                 } else {
                     $type = $column->type;
                     $size = $column->size;
-                    if (preg_match('/\_(at|by)$/', $name, $matches) != false) {
+                    if (false != preg_match('/\_(at|by)$/', $name, $matches)) {
                         $type = 'integer';
                         $size = 10;
-                        if ($matches[1] == 'by') {
+                        if ('by' == $matches[1]) {
                             $type = 'bigInteger';
                             $size = 20;
                         }
@@ -264,31 +280,35 @@ class ModelGeneratorController extends Controller
                 }
 
                 // check unsigned
-                if ($column->isPrimaryKey || preg_match('/\_(at|by)$/', $name) != false)
+                if ($column->isPrimaryKey || false != preg_match('/\_(at|by)$/', $name)) {
                     $chains[] = 'unsigned()';
+                }
 
                 // check null
-                if ($column->allowNull && preg_match('/\_(at|by)$/', $name) == false)
+                if ($column->allowNull && false == preg_match('/\_(at|by)$/', $name)) {
                     $chains[] = 'null()';
-                else
+                } else {
                     $chains[] = 'notNull()';
+                }
 
                 // check default
-                if (!empty($column->defaultValue))
+                if (!empty($column->defaultValue)) {
                     $chains[] = sprintf('defaultValue("%s")', $column->defaultValue);
+                }
 
                 // check comment
-                if (!empty($column->comment) || preg_match('/\_(at|by)$/', $name, $matched) != false) {
+                if (!empty($column->comment) || false != preg_match('/\_(at|by)$/', $name, $matched)) {
                     $comment = $column->comment;
 
                     if (isset($matched[1])) {
-                        if ($matched[1] == 'at')
+                        if ('at' == $matched[1]) {
                             $comment = 'unixtime';
-                        else
+                        } else {
                             $comment = 'ref: users.id';
+                        }
                     }
 
-                    $chains[] = 'comment("' . str_replace('"', "\"", $comment) . '")';
+                    $chains[] = 'comment("'.str_replace('"', '"', $comment).'")';
                 }
 
                 $syntax .= sprintf("\n    \"%s\" => %s,", $name, implode('->', $chains));
@@ -296,11 +316,11 @@ class ModelGeneratorController extends Controller
         }
 
         $syntax .= "\n]);";
-        echo "\n$syntax\n\n";
+        echo "\n{$syntax}\n\n";
     }
 
     /**
-     * compose rule types
+     * compose rule types.
      *
      * @param array<string, string[]> $ruleTypes
      * @return string[]
@@ -308,7 +328,7 @@ class ModelGeneratorController extends Controller
     protected function composeRuleTypes(array $ruleTypes): array
     {
         $rules = [];
-        foreach($ruleTypes as $type=>$columns) {
+        foreach ($ruleTypes as $type => $columns) {
             $rules[] = sprintf("            [['%s'], '%s'],", implode("', '", $columns), $type);
         }
 
@@ -316,7 +336,7 @@ class ModelGeneratorController extends Controller
     }
 
     /**
-     * compose other rules
+     * compose other rules.
      *
      * @param array<string, mixed> $otherRules
      * @return string[]
@@ -324,12 +344,13 @@ class ModelGeneratorController extends Controller
     protected function composeOtherRules(array $otherRules): array
     {
         $rules = [];
-        foreach($otherRules as $type=>$items) {
-            foreach($items as $name=>$item) {
-                if ($type == 'in')
+        foreach ($otherRules as $type => $items) {
+            foreach ($items as $name => $item) {
+                if ('in' == $type) {
                     $rules[] = sprintf("            [['%s'], '%s', 'range'=>['%s']],", $name, $type, implode("', '", $item['range']));
-                elseif ($type == 'defaults')
+                } elseif ('defaults' == $type) {
                     $rules[] = sprintf("            [['%s'], 'default', 'value'=>'%s'],", $name, $item['value']);
+                }
             }
         }
 
@@ -337,21 +358,22 @@ class ModelGeneratorController extends Controller
     }
 
     /**
-     * compose extra fields
+     * compose extra fields.
      *
      * @param string[] $extraFields
      * @return string
      */
     protected function composeExtraFields(array $extraFields): string
     {
-        if (empty($extraFields))
-            return "        return [];";
-        else
-            return sprintf("        return ['%s'];", implode("', '", $extraFields));
+        if (empty($extraFields)) {
+            return '        return [];';
+        }
+
+        return sprintf("        return ['%s'];", implode("', '", $extraFields));
     }
 
     /**
-     * extract columns into properties of OAS
+     * extract columns into properties of OAS.
      *
      * @param ColumnSchema[] $columns
      * @return array<int, array<array<string, mixed>>|string[]>
@@ -361,47 +383,54 @@ class ModelGeneratorController extends Controller
         // prepare swagger annotation
         $schemas = [];
         $requires = [];
-        foreach($columns as $name=>$col) {
+        foreach ($columns as $name => $col) {
             $comment = str_replace('"', '""', $col->comment);
-            if (empty($comment))
+            if (empty($comment)) {
                 $comment = $name;
+            }
 
             $type = $col->phpType;
-            if ($type == 'resource')
+            if ('resource' == $type) {
                 $type = 'object';
-            elseif ($col->type == 'bigint')
+            } elseif ('bigint' == $col->type) {
                 $type = 'integer';
+            }
 
-            if ($col->autoIncrement)
+            if ($col->autoIncrement) {
                 $comment .= ' #autoIncrement';
+            }
 
-            if ($col->isPrimaryKey)
+            if ($col->isPrimaryKey) {
                 $comment .= ' #pk';
+            }
 
-            if ($col->defaultValue === null)
+            if (null === $col->defaultValue) {
                 $default = null;
-            else {
+            } else {
                 $default = $col->defaultValue;
-                if ($type === 'string')
+                if ('string' === $type) {
                     $default = sprintf('"%s"', $default);
+                }
             }
 
             $maxLength = $col->size;
             $enum = null;
-            if (!empty($col->enumValues))
-                $enum = '{"' . implode('", "', $col->enumValues) . '"}';
+            if (!empty($col->enumValues)) {
+                $enum = '{"'.implode('", "', $col->enumValues).'"}';
+            }
 
             $attrs = [
                 'property' => sprintf('"%s"', $name),
                 'type' => sprintf('"%s"', $type),
                 'description' => sprintf('"%s"', $comment),
-                'maxLength' => ($maxLength == 0) ? null : $maxLength,
+                'maxLength' => (0 == $maxLength) ? null : $maxLength,
                 'default' => $default,
-                'enum' => $enum
+                'enum' => $enum,
             ];
 
-            if (!$col->allowNull)
+            if (!$col->allowNull) {
                 $requires[] = $name;
+            }
 
             $schemas[] = $attrs;
         }

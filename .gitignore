@@ -1,3 +1,5 @@
 vendor
 
 .phpdoc
+
+.php-cs-fixer.cache

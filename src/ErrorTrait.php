@@ -3,47 +3,34 @@
 namespace AtelliTech\Yii2\Utils;
 
 /**
- * This trait is used to represent an error
+ * This trait is used to represent an error.
  *
  * @author Eric Huang <eric.huang@atelli.ai>
  */
 trait ErrorTrait
 {
     /**
-     * @var array<string, mixed> $errorValues
+     * @var array<string, mixed>
      */
-    private $errorValues = ['code'=>0, 'message'=>'', 'details'=>[]];
+    private $errorValues = ['code' => 0, 'message' => '', 'details' => []];
 
     /**
-     * set error
-     *
-     * @param int $code
-     * @param string $message
-     * @param array $details
-     */
-    protected function setError(int $code, string $message, array $details = [])
-    {
-        $this->errorValues['code'] = $code;
-        $this->errorValues['message'] = $message;
-        $this->errorValues['details'] = $details;
-    }
-
-    /**
-     * set error values
+     * set error values.
      *
      * @param array $error
      * @return void
      */
     public function setErrorValues(array $error): void
     {
-        foreach($this->errorValues as $name=>$value) {
-            if (isset($error[$name]))
+        foreach ($this->errorValues as $name => $value) {
+            if (isset($error[$name])) {
                 $this->errorValues[$name] = $error[$name];
+            }
         }
     }
 
     /**
-     * set error code
+     * set error code.
      *
      * @param int $code
      * @return void
@@ -54,7 +41,7 @@ trait ErrorTrait
     }
 
     /**
-     * set error message
+     * set error message.
      *
      * @param int $message
      * @return void
@@ -65,7 +52,7 @@ trait ErrorTrait
     }
 
     /**
-     * set error details
+     * set error details.
      *
      * @param array<int, mixed> $details
      * @return void
@@ -76,7 +63,7 @@ trait ErrorTrait
     }
 
     /**
-     * get error code
+     * get error code.
      *
      * @return int
      */
@@ -86,7 +73,7 @@ trait ErrorTrait
     }
 
     /**
-     * get error message
+     * get error message.
      *
      * @return string
      */
@@ -96,7 +83,7 @@ trait ErrorTrait
     }
 
     /**
-     * get error details
+     * get error details.
      *
      * @return array<int, mixed>
      */
@@ -106,12 +93,26 @@ trait ErrorTrait
     }
 
     /**
-     * get error values
+     * get error values.
      *
      * @return array<string, mixed>
      */
     public function getErrorValues(): array
     {
         return $this->errorValues;
+    }
+
+    /**
+     * set error.
+     *
+     * @param int $code
+     * @param string $message
+     * @param array $details
+     */
+    protected function setError(int $code, string $message, array $details = [])
+    {
+        $this->errorValues['code'] = $code;
+        $this->errorValues['message'] = $message;
+        $this->errorValues['details'] = $details;
     }
 }
