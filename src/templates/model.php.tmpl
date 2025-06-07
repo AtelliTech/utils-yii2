@@ -13,7 +13,6 @@ use yii\db\ActiveQuery;
  *   schema="<?= $className ?>",
  *   title="<?= $className ?> Model",
  *   description="This model is used to access <?= $tableName ?> data",
- *   required={"<?= implode('", "', $requires) ?>"},
 <?php foreach($annotations as $idx=>$annotation): ?>
  *   @OA\Property(<?= $annotation ?>)<?= ($idx != $lastAnnotationNum) ? ',' : '' ?>
 
