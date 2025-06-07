@@ -30,12 +30,13 @@ use yii\helpers\Inflector;
  * @property string $defaultAction Default CLI action (generate)
  *
  * @author Eric Huang <eric.huang@cyntelli.com>
+ *
  * @version 2.0.0
  */
 class ModelGeneratorController extends Controller
 {
     public string $path = '@app/models';
-    public string $namespace = 'app\\models';
+    public string $namespace = 'app\models';
     public string $template = '@vendor/atellitech/utils-yii2/src/templates/model.php.tmpl';
     public string $db = 'db';
     public string $oldDb;
@@ -47,6 +48,7 @@ class ModelGeneratorController extends Controller
 
     /**
      * Defines supported CLI options.
+     *
      * @param string $actionID
      * @return string[]
      */
@@ -59,6 +61,7 @@ class ModelGeneratorController extends Controller
 
     /**
      * Defines aliases for CLI options.
+     *
      * @return array<string, string>
      */
     public function optionAliases(): array
@@ -72,6 +75,7 @@ class ModelGeneratorController extends Controller
 
     /**
      * Generate a model from the specified table.
+     *
      * @param string $tableName Table name
      * @param int $override Whether to override existing file (0 = no, 1 = yes)
      * @return int
@@ -79,11 +83,12 @@ class ModelGeneratorController extends Controller
     public function actionGenerate(string $tableName, int $override = 0): int
     {
         $className = Inflector::singularize(Inflector::camelize($tableName));
-        $classPath = Yii::getAlias($this->path) . DIRECTORY_SEPARATOR . "$className.php";
+        $classPath = Yii::getAlias($this->path).DIRECTORY_SEPARATOR."{$className}.php";
 
         if (file_exists($classPath) && !$override) {
             if (!$this->confirm("Model exists at {$classPath}. Override?", true)) {
                 $this->stdout("Skipped model generation for {$tableName}\n", Console::FG_YELLOW);
+
                 return 0;
             }
         }
@@ -93,6 +98,7 @@ class ModelGeneratorController extends Controller
 
         if (!$schema) {
             $this->stderr("Schema for table '{$tableName}' not found.\n", Console::FG_RED);
+
             return 1;
         }
 
@@ -114,7 +120,7 @@ class ModelGeneratorController extends Controller
         [$schemas, $requires] = $this->createSchemaByColumns($schema->columns);
         $annotations = array_map(function ($schema) {
             return implode(', ', array_filter(array_map(
-                fn($k, $v) => $v !== null ? "$k=$v" : null,
+                fn ($k, $v) => null !== $v ? "{$k}={$v}" : null,
                 array_keys($schema),
                 $schema
             )));
@@ -136,11 +142,13 @@ class ModelGeneratorController extends Controller
         file_put_contents($classPath, $contents);
 
         $this->stdout("Created model {$className} for table {$tableName}.\n", Console::FG_GREEN);
+
         return 0;
     }
 
     /**
      * Generate models for all tables in the database.
+     *
      * @param int $override Whether to override existing files (0 = no, 1 = yes)
      */
     public function actionAll(int $override = 1): void
@@ -154,6 +162,7 @@ class ModelGeneratorController extends Controller
 
     /**
      * Generate a migration snippet for the given table.
+     *
      * @param string $tableName Table name
      * @throws Exception If the table is not found
      */
@@ -164,10 +173,10 @@ class ModelGeneratorController extends Controller
             throw new Exception("Table '{$tableName}' not found.", 404);
         }
 
-        $syntax = "\$this->createTable(\$this->table, [";
+        $syntax = '$this->createTable($this->table, [';
 
         foreach ($schema->columns as $col) {
-            $syntax .= "\n    \"{$col->name}\" => " . $this->buildColumnMigration($col) . ',';
+            $syntax .= "\n    \"{$col->name}\" => ".$this->buildColumnMigration($col).',';
         }
 
         $syntax .= "\n]);";
@@ -176,6 +185,7 @@ class ModelGeneratorController extends Controller
 
     /**
      * Get the DB connection component.
+     *
      * @return \yii\db\Connection
      */
     protected function getDb()
@@ -184,40 +194,8 @@ class ModelGeneratorController extends Controller
     }
 
     /**
-     * Process a column to extract type and rule details.
-     * @param ColumnSchema $col Column schema object
-     * @param string $name Column name
-     * @param array $ruleTypes Reference to collected rule types
-     * @param array $otherRules Reference to other rules (default, enum)
-     * @param array $extraFields Reference to extra fields (e.g., *_id)
-     * @return string Type name
-     */
-    private function processColumn(ColumnSchema $col, string $name, array &$ruleTypes, array &$otherRules, array &$extraFields): string
-    {
-        $type = $col->type === 'bigint' ? 'integer' : $col->phpType;
-        $ruleTypes[$type][] = $name;
-
-        if ($type === 'string') {
-            $ruleTypes['trim'][] = $name;
-        }
-
-        if (str_ends_with($name, '_id')) {
-            $extraFields[] = substr($name, 0, -3);
-        }
-
-        if (str_starts_with($col->dbType, 'enum')) {
-            $otherRules['in'][$name] = ['range' => $col->enumValues];
-        }
-
-        if ($col->defaultValue !== null) {
-            $otherRules['defaults'][$name] = ['value' => $col->defaultValue];
-        }
-
-        return $type;
-    }
-
-    /**
      * Compose validation rules by type.
+     *
      * @param array<string, string[]> $ruleTypes
      * @return string[]
      */
@@ -227,11 +205,13 @@ class ModelGeneratorController extends Controller
         foreach ($ruleTypes as $type => $columns) {
             $rules[] = sprintf("            [['%s'], '%s'],", implode("', '", $columns), $type);
         }
+
         return $rules;
     }
 
     /**
      * Compose enum and default value rules.
+     *
      * @param array<string, mixed> $otherRules
      * @return string[]
      */
@@ -240,18 +220,20 @@ class ModelGeneratorController extends Controller
         $rules = [];
         foreach ($otherRules as $type => $items) {
             foreach ($items as $name => $item) {
-                if ($type === 'in') {
+                if ('in' === $type) {
                     $rules[] = sprintf("            [['%s'], 'in', 'range' => ['%s']],", $name, implode("', '", $item['range']));
-                } elseif ($type === 'defaults') {
+                } elseif ('defaults' === $type) {
                     $rules[] = sprintf("            [['%s'], 'default', 'value' => '%s'],", $name, $item['value']);
                 }
             }
         }
+
         return $rules;
     }
 
     /**
      * Compose extraFields definition for model.
+     *
      * @param string[] $extraFields
      * @return string
      */
@@ -264,6 +246,7 @@ class ModelGeneratorController extends Controller
 
     /**
      * Extract Swagger annotation schema from columns.
+     *
      * @param ColumnSchema[] $columns
      * @return array{0: array<array<string, mixed>>, 1: string[]}
      */
@@ -274,16 +257,16 @@ class ModelGeneratorController extends Controller
 
         foreach ($columns as $name => $col) {
             $comment = $col->comment ?: $name;
-            $type = $col->phpType === 'resource' ? 'object' : ($col->type === 'bigint' ? 'string' : $col->phpType);
-            $default = $col->defaultValue !== null ? ($type === 'string' ? "\"{$col->defaultValue}\"" : $col->defaultValue) : null;
+            $type = 'resource' === $col->phpType ? 'object' : ('bigint' === $col->type ? 'string' : $col->phpType);
+            $default = null !== $col->defaultValue ? ('string' === $type ? "\"{$col->defaultValue}\"" : $col->defaultValue) : null;
 
             $attrs = [
-                'property' => "\"$name\"",
-                'type' => "\"$type\"",
-                'description' => "\"$comment\"",
+                'property' => "\"{$name}\"",
+                'type' => "\"{$type}\"",
+                'description' => "\"{$comment}\"",
                 'maxLength' => $col->size ?: null,
                 'default' => $default,
-                'enum' => $col->enumValues ? '{"' . implode('", "', $col->enumValues) . '"}' : null,
+                'enum' => $col->enumValues ? '{"'.implode('", "', $col->enumValues).'"}' : null,
             ];
 
             if (!$col->allowNull) {
@@ -297,21 +280,57 @@ class ModelGeneratorController extends Controller
     }
 
     /**
+     * Process a column to extract type and rule details.
+     *
+     * @param ColumnSchema $col Column schema object
+     * @param string $name Column name
+     * @param array<string, string[]> $ruleTypes Reference to collected rule types
+     * @param array<string, array<string, mixed>> $otherRules Reference to other rules (default, enum)
+     * @param string[] $extraFields Reference to extra fields (e.g., *_id)
+     * @return string Type name
+     */
+    private function processColumn(ColumnSchema $col, string $name, array &$ruleTypes, array &$otherRules, array &$extraFields): string
+    {
+        $type = 'bigint' === $col->type ? 'integer' : $col->phpType;
+        $ruleTypes[$type][] = $name;
+
+        if ('string' === $type) {
+            $ruleTypes['trim'][] = $name;
+        }
+
+        if (str_ends_with($name, '_id')) {
+            $extraFields[] = substr($name, 0, -3);
+        }
+
+        if (str_starts_with($col->dbType, 'enum')) {
+            $otherRules['in'][$name] = ['range' => $col->enumValues];
+        }
+
+        if (null !== $col->defaultValue) {
+            $otherRules['defaults'][$name] = ['value' => $col->defaultValue];
+        }
+
+        return $type;
+    }
+
+    /**
      * Build the migration definition for a column.
+     *
      * @param ColumnSchema $column Column schema
      * @return string Migration code snippet
      */
     private function buildColumnMigration(ColumnSchema $column): string
     {
         if (str_starts_with($column->dbType, 'enum')) {
-            $chain = ['"ENUM' . strstr($column->dbType, '(') . '"'];
-            if ($column->defaultValue !== null) {
+            $chain = ['"ENUM'.strstr($column->dbType, '(').'"'];
+            if (null !== $column->defaultValue) {
                 $chain[] = sprintf('DEFAULT "%s"', $column->defaultValue);
             }
             $chain[] = $column->allowNull ? 'NULL' : 'NOT NULL';
             if ($column->comment) {
                 $chain[] = sprintf("COMMENT '%s'", str_replace('"', '"', $column->comment));
             }
+
             return implode(' ', $chain);
         }
 
@@ -321,21 +340,23 @@ class ModelGeneratorController extends Controller
         } else {
             $type = $column->type;
             $size = $column->size;
-            if (preg_match('/\\_(at|by)$/', $column->name, $matches)) {
-                $type = $matches[1] === 'by' ? 'bigInteger' : 'integer';
-                $size = $matches[1] === 'by' ? 20 : 10;
+            if (preg_match('/\_(at|by)$/', $column->name, $matches)) {
+                $type = 'by' === $matches[1] ? 'bigInteger' : 'integer';
+                $size = 'by' === $matches[1] ? 20 : 10;
             }
             $chain[] = sprintf('%s(%d)', $type, $size);
         }
-        if ($column->isPrimaryKey || preg_match('/\\_(at|by)$/', $column->name)) {
+        if ($column->isPrimaryKey || preg_match('/\_(at|by)$/', $column->name)) {
             $chain[] = 'unsigned()';
         }
-        $chain[] = ($column->allowNull && !preg_match('/\\_(at|by)$/', $column->name)) ? 'null()' : 'notNull()';
-        if ($column->defaultValue !== null) {
+        $chain[] = ($column->allowNull && !preg_match('/\_(at|by)$/', $column->name)) ? 'null()' : 'notNull()';
+        if (null !== $column->defaultValue) {
             $chain[] = sprintf('defaultValue("%s")', $column->defaultValue);
         }
-        if ($column->comment || preg_match('/\\_(at|by)$/', $column->name, $match)) {
-            $comment = $match[1] === 'at' ? 'unixtime' : ($match[1] === 'by' ? 'ref: users.id' : $column->comment);
+
+        $match = [null, null];
+        if ($column->comment || preg_match('/\_(at|by)$/', $column->name, $match)) {
+            $comment = 'at' === $match[1] ? 'unixtime' : ('by' === $match[1] ? 'ref: users.id' : $column->comment);
             $chain[] = sprintf('comment("%s")', str_replace('"', '"', $comment));
         }
 
