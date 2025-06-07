@@ -2,10 +2,12 @@
 
 namespace <?= $name ?>\controllers;
 
+use InvalidArgumentException;
 use Throwable;
 use <?= $name ?>\components\ActiveApiController;
 use yii\data\ActiveDataProvider;
 use yii\web\HttpException;
+use xxx\xxx\<?= $searchServiceClassName ?>;
 
 /**
  * @OA\Tag(
@@ -43,6 +45,7 @@ use yii\web\HttpException;
  *         name="expand",
  *         in="query",
  *         @OA\Schema(type="string", enum={"xxxx"}, description="Query related models, using comma(,) be seperator")
+ *         @OA\Schema(ref="#/components/schemas/<?= $searchModelClassName ?>/properties/expand"),
  *     ),
  *     @OA\Response(
  *         response=200,
@@ -50,7 +53,7 @@ use yii\web\HttpException;
  *         @OA\MediaType(
  *             mediaType="application/json",
  *             @OA\Schema(
- *              @OA\Property(property="_data", type="array", @OA\Items(ref="#/components/schemas/<?= $className ?>")),
+ *              @OA\Property(property="_data", type="array", @OA\Items(ref="#/components/schemas/<?= $modelClassName ?>")),
  *              @OA\Property(property="_meta", type="object", ref="#/components/schemas/Pagination")
  *             )
  *         )
@@ -68,7 +71,7 @@ use yii\web\HttpException;
  *         in="path",
  *         description="<?= $className ?> id",
  *         required=true,
- *         @OA\Schema(ref="#/components/schemas/<?= $className ?>/properties/id")
+ *         @OA\Schema(ref="#/components/schemas/<?= $modelClassName ?>/properties/id")
  *     ),
  *     @OA\Parameter(
  *         name="fields",
@@ -78,12 +81,13 @@ use yii\web\HttpException;
  *     @OA\Parameter(
  *         name="expand",
  *         in="query",
- *         @OA\Schema(type="string", enum={"xxxx"}, description="Query related models, using comma(,) be seperator")
+ *         @OA\Schema(type="string", enum={"xxxx"}, description="Query related models, using comma(,) be seperator"),
+ *         @OA\Schema(ref="#/components/schemas/<?= $searchModelClassName ?>/properties/expand")
  *     ),
  *     @OA\Response(
  *         response=200,
  *         description="Successful operation",
- *         @OA\JsonContent(type="object", ref="#/components/schemas/<?= $className ?>")
+ *         @OA\JsonContent(type="object", ref="#/components/schemas/<?= $modelClassName ?>")
  *     )
  * )
  *
@@ -106,7 +110,7 @@ use yii\web\HttpException;
  *     @OA\Response(
  *         response=200,
  *         description="Successful operation",
- *         @OA\JsonContent(type="object", ref="#/components/schemas/<?= $className ?>")
+ *         @OA\JsonContent(type="object", ref="#/components/schemas/<?= $modelClassName ?>")
  *     )
  * )
  *
@@ -121,7 +125,7 @@ use yii\web\HttpException;
  *         in="path",
  *         description="<?= $className ?> id",
  *         required=true,
- *         @OA\Schema(ref="#/components/schemas/<?= $className ?>/properties/id")
+ *         @OA\Schema(ref="#/components/schemas/<?= $modelClassName ?>/properties/id")
  *     ),
  *     @OA\RequestBody(
  *         description="<?= $className ?> object that needs to be updated",
@@ -136,7 +140,7 @@ use yii\web\HttpException;
  *     @OA\Response(
  *         response=200,
  *         description="Successful operation",
- *         @OA\JsonContent(type="object", ref="#/components/schemas/<?= $className ?>")
+ *         @OA\JsonContent(type="object", ref="#/components/schemas/<?= $modelClassName ?>")
  *     )
  * )
  *
@@ -151,7 +155,7 @@ use yii\web\HttpException;
  *         in="path",
  *         description="<?= $className ?> id",
  *         required=true,
- *         @OA\Schema(ref="#/components/schemas/<?= $className ?>/properties/id")
+ *         @OA\Schema(ref="#/components/schemas/<?= $modelClassName ?>/properties/id")
  *     ),
  *     @OA\Response(
  *         response=200,
@@ -177,16 +181,6 @@ class <?= $className ?>Controller extends ActiveApiController
     {
         $actions = parent::actions();
 
-        // customize the data provider preparation with the "prepareDataProvider()" method
-        $actions['index']['dataFilter'] = [
-            'class' => 'yii\data\ActiveDataFilter',
-            'searchModel' => $this->modelClass
-        ];
-
-        $actions['index']['pagination'] = [
-            'class' => '<?= $name ?>\components\Pagination'
-        ];
-
         unset($actions['index']);
 
         return $actions;
@@ -204,7 +198,7 @@ class <?= $className ?>Controller extends ActiveApiController
      *         required=false,
      *         @OA\MediaType(
      *             mediaType="application/json",
-     *             @OA\Schema(ref="#/components/schemas/xxxxxSearchModel")
+     *             @OA\Schema(ref="#/components/schemas/<?= $searchModelClassName ?>")
      *         ),
      *     ),
      *     @OA\Response(
@@ -213,7 +207,7 @@ class <?= $className ?>Controller extends ActiveApiController
      *         @OA\MediaType(
      *             mediaType="application/json",
      *             @OA\Schema(
-     *              @OA\Property(property="_data", type="array", @OA\Items(ref="#/components/schemas/<?= $className ?>")),
+     *              @OA\Property(property="_data", type="array", @OA\Items(ref="#/components/schemas/<?= $modelClassName ?>")),
      *              @OA\Property(property="_meta", type="object", ref="#/components/schemas/Pagination")
      *             )
      *         )
@@ -222,28 +216,18 @@ class <?= $className ?>Controller extends ActiveApiController
      *
      * Search <?= $className . "\n" ?>
      *
-     * @param xxxxxService $service
+     * @param <?= $searchServiceClassName ?> $service
      * @return ActiveDataProvider
      */
-    public function actionSearch(xxxxxService $service): ActiveDataProvider
+    public function actionSearch(<?= $searchServiceClassName ?> $service): ActiveDataProvider
     {
         try {
             $params = $this->getRequestParams();
-            $query = $service->createSearchQuery($params);
-
-            return new ActiveDataProvider([
-                'query' => &$query,
-                'pagination' => [
-                    'class' => '<?= $name ?>\components\Pagination',
-                    'params' => $params
-                ],
-                'sort' => [
-                    'enableMultiSort' => true,
-                    'params' => $params
-                ]
-            ]);
+            return $service->search($params);
+        } catch (InvalidArgumentException $e) {
+            throw new Exception(400, $e->getMessage());
         } catch (Throwable $e) {
-            throw $e;
+            throw new HttpException(500, $e->getMessage());
         }
     }
 }
