@@ -225,7 +225,7 @@ class <?= $className ?>Controller extends ActiveApiController
             $params = $this->getRequestParams();
             return $service->search($params);
         } catch (InvalidArgumentException $e) {
-            throw new Exception(400, $e->getMessage());
+            throw new HttpException(400, $e->getMessage());
         } catch (Throwable $e) {
             throw new HttpException(500, $e->getMessage());
         }
